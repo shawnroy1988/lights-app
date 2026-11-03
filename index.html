@@ -46,6 +46,15 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 .step{display:grid;grid-template-columns:1fr 1fr 64px 44px;gap:6px;margin-bottom:6px}.step select,.step input{min-height:44px;padding:0 6px;font-size:14px;width:100%}
 .step button{min-height:44px;padding:0}
 #tap{min-height:64px;font-size:18px}#tap.flash{background:var(--acc2)}
+.sig{border-color:#a33bff;box-shadow:0 0 28px #a33bff44,inset 0 0 40px #00f0ff11}
+#sigtabs button{min-height:58px}#sigtabs button.sel{background:linear-gradient(135deg,#00c6ff55,#ff2bd655);border-color:var(--acc)}
+.sigp{display:none;margin-top:14px}.sigp.show{display:block}
+#camwrap{position:relative;margin-top:10px;border-radius:18px;overflow:hidden;background:#000;aspect-ratio:4/3;display:none}
+#camv{width:100%;height:100%;object-fit:cover;display:block}
+#camret{position:absolute;left:30%;top:30%;width:40%;height:40%;border:3px solid #fff;border-radius:16px;box-shadow:0 0 0 2000px #0006}
+#camsw{position:absolute;right:10px;bottom:10px;width:54px;height:54px;border-radius:50%;border:3px solid #fff}
+.pchip{display:inline-block;width:44px;height:44px;border-radius:50%;margin:0 6px 6px 0;border:2px solid #0006;box-shadow:0 0 12px currentColor}
+#skybar{height:14px;border-radius:7px;margin-top:10px;background:linear-gradient(90deg,#0a1440,#ff5a7a,#ffd27a,#bfe8ff,#ffd27a,#ff5a1f,#0a1440)}
 </style></head><body>
 <div id="bgglow"></div>
 <h1>⚡ LIGHT SHOW</h1><div class="mute">ELK-BLEDOM controller · whole strip = one color at a time</div>
@@ -55,6 +64,33 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 <div class="card"><div id="orbwrap"><div id="orb"></div></div><div id="nowlbl">Idle</div><div id="tl"><i></i></div>
 <div class="row" style="margin-top:12px"><button id="power">⏻ Power</button><button id="stopall" class="stop">■ Stop</button></div>
 <h2 style="margin-top:14px">Master brightness <span id="bv"></span></h2><input type="range" id="bri" min="1" max="100"></div>
+
+<div class="card sig"><h2>✨ Signature <span class="mute" style="text-transform:none;letter-spacing:0">only on this app</span></h2>
+<div class="grid" id="sigtabs">
+<button data-t="cam">📷 Camera Match</button><button data-t="voice">🎙 Voice</button>
+<button data-t="vibe">🔮 Vibe Generator</button><button data-t="game">🏈 Game Day</button>
+<button data-t="wx">⛅ Live Weather</button><button data-t="sky">🌅 Sky Clock</button></div>
+<div class="sigp" id="p_cam"><div class="mute">Point the camera at anything — a jersey, a sunset, a drink — and the lights become that color.</div>
+<div id="camwrap"><video id="camv" playsinline muted autoplay></video><div id="camret"></div><div id="camsw"></div></div>
+<button id="cambtn" class="big" style="margin-top:10px">📷 Start Camera Match</button>
+<h2 style="margin-top:12px">Smoothing <span id="camsmv"></span></h2><input type="range" id="camsm" min="0" max="95" value="70">
+<div class="row"><button id="camlock">🔒 Lock color → scene</button><button id="cammode">Mode: Dominant</button></div><div id="cammsg" class="msg"></div></div>
+<div class="sigp" id="p_voice"><button id="vbtn" class="big">🎙 Start Listening</button><div id="vheard" style="text-align:center;margin-top:10px;font-weight:700;min-height:22px"></div>
+<div id="vmsg" class="msg"></div><div class="mute" style="margin-top:6px">Try: “red”, “party mode”, “insane show”, “lights off”, “lights on”, “brighter”, “dimmer”, “storm”, “Christmas”, “Halloween”, “Bengals”, “vibe Miami nights”, “stop”.</div></div>
+<div class="sigp" id="p_vibe"><div class="row"><input type="text" id="vibein" placeholder="Type a vibe: Miami nights, ice cave, Bengals game…" enterkeyhint="go"><button id="vibego" style="flex:0 0 70px">▶</button></div>
+<div class="chips" id="vibeex" style="margin-top:8px"></div><div id="vibeout" style="margin-top:10px"></div>
+<button id="vibesave" style="width:100%;margin-top:8px">⭐ Save vibe as scene</button></div>
+<div class="sigp" id="p_game"><div class="row"><select id="lg" style="flex:0 0 96px"></select><select id="team"></select></div>
+<div class="pal" id="teampal" style="margin:10px 0"></div>
+<button id="gameplay" style="width:100%">▶ Play Team Colors</button>
+<button id="score" class="big" style="margin-top:10px;min-height:84px;font-size:24px">🏈 TOUCHDOWN!</button>
+<div class="mute" style="margin-top:6px">SCORE fires a 10-second celebration strobe in team colors, then goes back to what was playing.</div></div>
+<div class="sigp" id="p_wx"><button id="wxbtn" class="big">⛅ Start Live Weather</button><div id="wxinfo" style="text-align:center;margin-top:10px;font-weight:700"></div>
+<div id="wxmsg" class="msg"></div><div class="row" style="margin-top:8px"><input type="text" id="wxcity" placeholder="…or type a city"><button id="wxcitygo" style="flex:0 0 70px">Go</button></div>
+<div class="mute" style="margin-top:6px">Rain = ocean shimmer, snow = white twinkle, thunder = lightning, clear night = deep calm blue, sunny = warm. Refreshes every 10 min while open.</div></div>
+<div class="sigp" id="p_sky"><button id="skybtn" class="big">🌅 Start Sky Clock</button><div id="skyinfo" style="text-align:center;margin-top:10px;font-weight:700"></div>
+<div id="skybar"></div><div id="skymsg" class="msg"></div><div class="mute" style="margin-top:6px">Follows the real sun where you are: dawn pinks, daylight, golden hour, sunset, deep night. Drifts slowly while the page is open.</div></div>
+</div>
 
 <div class="card"><button id="insane" class="big">🔥 INSANE SHOW 🔥</button><div class="mute" style="margin-top:8px;text-align:center">~4 min scripted show: build-ups, drops, strobes, storms. Loops.</div></div>
 
@@ -194,6 +230,7 @@ function loop(now){raf=requestAnimationFrame(loop);const dt=Math.min(.1,(now-tLa
  const sf=sleepFactor(now);if(!run){ if(sleepEnd&&pending===null&&sf<1)out(sc(master(S.color),sf)); return;}
  let c;
  if(run.type==='mic'){c=micFrame(dt);}
+ else if(run.type==='live'){c=run.f(dt,now);if(!c)return;$('nowlbl').textContent=run.label;}
  else{let fx,pal,spd=spdV(),I=intV(),label;
   if(run.type==='seq'){const st=seqStep(now);if(!st)return;fx=st.fx;pal=st.pal;spd*=st.spd;I=Math.min(1,I*(st.int??1));label=`${run.name} · ${FX[fx].n}`;}
   else{fx=run.fx;pal=run.pal;label=FX[fx].n+' · '+(PALS[run.palKey]?.n||run.label||'');if(run.label)label=run.label;}
@@ -201,9 +238,9 @@ function loop(now){raf=requestAnimationFrame(loop);const dt=Math.min(.1,(now-tLa
   c=FX[fx].f(tAcc,pal,I,stF,b);$('nowlbl').textContent=label;}
  out(sc(master(c),sf));}
 function startLoop(){if(!raf){tLast=performance.now();raf=requestAnimationFrame(loop);}}
-function begin(r){stopMic(true);run=r;tAcc=0;stF={};if(!powerOn){powerOn=true;cmd.on();$('power').classList.add('on-btn');}
+function begin(r){stopMic(true);liveStop(r);run=r;tAcc=0;stF={};if(!powerOn){powerOn=true;cmd.on();$('power').classList.add('on-btn');}
  if(!ch)$('status').textContent='Preview only — connect to drive the lights';cmd.bri(100);lastKey='';startLoop();wakeOn(true);markActive();}
-function stopAll(){stopMic(true);run=null;$('nowlbl').textContent='Idle';$('tl').firstChild.style.width='0';markActive();cmd.bri(S.bri);}
+function stopAll(){stopMic(true);liveStop(null);run=null;$('nowlbl').textContent='Idle';$('tl').firstChild.style.width='0';markActive();cmd.bri(S.bri);}
 function markActive(){document.querySelectorAll('.active').forEach(e=>e.classList.remove('active'));
  if(run&&run.el)run.el.classList.add('active');}
 let curPal='neon';
@@ -262,6 +299,81 @@ function micFrame(dt){if(!an)return[0,0,0];an.getByteFrequencyData(fbuf);MST.t+=
  $('nowlbl').textContent='🎵 Music Sync · '+PALS[micPal].n;return c;}
 $('micbtn').onclick=()=>{if(micStream){stopMic();stopAll();}else startMic();};
 $('sensv').textContent=$('sens').value;$('sens').oninput=e=>$('sensv').textContent=e.target.value;
+
+// ===================== SIGNATURE: pure data + generators (node-testable) =====================
+//<PURE>
+const hx=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));
+// LEDs can't show black: lift near-black team colors to a dim version of white so fades still look right
+const ledSafe=c=>(c[0]+c[1]+c[2]<60?[200,200,215]:c);
+const TEAM_SRC={
+NFL:'Cardinals:#97233f #ffb612 #ffffff|Falcons:#a71930 #ffffff #a5acaf|Ravens:#241773 #9e7c0c #ffffff|Bills:#00338d #c60c30 #ffffff|Panthers:#0085ca #bfc0bf #ffffff|Bears:#0b162a #c83803 #ffffff|Bengals:#fb4f14 #ffffff #fb4f14|Browns:#ff3c00 #311d00 #ffffff|Cowboys:#003594 #869397 #ffffff|Broncos:#fb4f14 #002244 #ffffff|Lions:#0076b6 #b0b7bc #ffffff|Packers:#203731 #ffb612 #ffffff|Texans:#03202f #a71930 #ffffff|Colts:#002c5f #ffffff #a2aaad|Jaguars:#006778 #d7a22a #9f792c|Chiefs:#e31837 #ffb81c #ffffff|Raiders:#a5acaf #ffffff #a5acaf|Chargers:#0080c6 #ffc20e #ffffff|Rams:#003594 #ffa300 #ffffff|Dolphins:#008e97 #fc4c02 #ffffff|Vikings:#4f2683 #ffc62f #ffffff|Patriots:#002244 #c60c30 #b0b7bc|Saints:#d3bc8d #ffffff #d3bc8d|Giants:#0b2265 #a71930 #ffffff|Jets:#125740 #ffffff #125740|Eagles:#004c54 #a5acad #ffffff|Steelers:#ffb612 #ffffff #ffb612|49ers:#aa0000 #b3995d #ffffff|Seahawks:#002244 #69be28 #a5acaf|Buccaneers:#d50a0a #ff7900 #b1babf|Titans:#0c2340 #4b92db #c8102e|Commanders:#5a1414 #ffb612 #ffffff',
+NBA:'Hawks:#e03a3e #c1d32f #ffffff|Celtics:#007a33 #ba9653 #ffffff|Nets:#ffffff #777d84 #ffffff|Hornets:#1d1160 #00788c #a1a1a4|Bulls:#ce1141 #ffffff #ce1141|Cavaliers:#860038 #fdbb30 #041e42|Mavericks:#00538c #002b5e #b8c4ca|Nuggets:#0e2240 #fec524 #8b2131|Pistons:#c8102e #1d42ba #bec0c2|Warriors:#1d428a #ffc72c #ffffff|Rockets:#ce1141 #ffffff #c4ced4|Pacers:#002d62 #fdbb30 #bec0c2|Clippers:#c8102e #1d428a #ffffff|Lakers:#552583 #fdb927 #ffffff|Grizzlies:#5d76a9 #12173f #f5b112|Heat:#98002e #f9a01b #ffffff|Bucks:#00471b #eee1c6 #0077c0|Timberwolves:#0c2340 #236192 #78be20|Pelicans:#0c2340 #c8102e #85714d|Knicks:#006bb6 #f58426 #ffffff|Thunder:#007ac1 #ef3b24 #fdbb30|Magic:#0077c0 #c4ced4 #ffffff|76ers:#006bb6 #ed174c #ffffff|Suns:#1d1160 #e56020 #f9ad1b|Trail Blazers:#e03a3e #ffffff #e03a3e|Kings:#5a2d81 #63727a #ffffff|Spurs:#c4ced4 #ffffff #8a8d8f|Raptors:#ce1141 #ffffff #a1a1a4|Jazz:#002b5c #f9a01b #00471b|Wizards:#002b5c #e31837 #ffffff',
+MLB:'Diamondbacks:#a71930 #e3d4ad #30ced8|Braves:#ce1141 #13274f #ffffff|Orioles:#df4601 #ffffff #df4601|Red Sox:#bd3039 #0c2340 #ffffff|Cubs:#0e3386 #cc3433 #ffffff|White Sox:#c4ced4 #ffffff #c4ced4|Reds:#c6011f #ffffff #c6011f|Guardians:#00385d #e50022 #ffffff|Rockies:#33006f #c4ced4 #ffffff|Tigers:#0c2340 #fa4616 #ffffff|Astros:#002d62 #eb6e1f #f4911e|Royals:#004687 #bd9b60 #ffffff|Angels:#ba0021 #003263 #c4ced4|Dodgers:#005a9c #ffffff #ef3e42|Marlins:#00a3e0 #ef3340 #41748d|Brewers:#12284b #ffc52f #ffffff|Twins:#002b5c #d31145 #ffffff|Mets:#002d72 #ff5910 #ffffff|Yankees:#0c2340 #ffffff #c4ced4|Athletics:#003831 #efb21e #ffffff|Phillies:#e81828 #002d72 #ffffff|Pirates:#fdb827 #ffffff #fdb827|Padres:#2f241d #ffc425 #ffffff|Mariners:#0c2c56 #005c5c #c4ced4|Cardinals Baseball:#c41e3a #0c2340 #fedb00|Rays:#092c5c #8fbce6 #f5d130|Rangers:#003278 #c0111f #ffffff|Blue Jays:#134a8e #1d2d5c #e8291c|Nationals:#ab0003 #14225a #ffffff|Giants Baseball:#fd5a1e #ffffff #ae8f6f',
+NHL:'Ducks:#f47a38 #b9975b #c1c6c8|Bruins:#ffb81c #ffffff #ffb81c|Sabres:#003087 #ffb81c #ffffff|Flames:#c8102e #f1be48 #ffffff|Hurricanes:#cc0000 #ffffff #a2aaad|Blackhawks:#cf0a2c #ff671b #00833e|Avalanche:#6f263d #236192 #a2aaad|Blue Jackets:#002654 #ce1126 #ffffff|Stars:#006847 #8f8f8c #ffffff|Red Wings:#ce1126 #ffffff #ce1126|Oilers:#041e42 #ff4c00 #ffffff|Panthers Hockey:#041e42 #c8102e #b9975b|Kings Hockey:#a2aaad #ffffff #572a84|Wild:#154734 #a6192e #eaaa00|Canadiens:#af1e2d #192168 #ffffff|Predators:#ffb81c #041e42 #ffffff|Devils:#ce1126 #ffffff #ce1126|Islanders:#00539b #f47d30 #ffffff|Rangers Hockey:#0038a8 #ce1126 #ffffff|Senators:#c52032 #c2912c #ffffff|Flyers:#f74902 #ffffff #f74902|Penguins:#fcb514 #ffffff #cfc493|Sharks:#006d75 #ea7200 #ffffff|Kraken:#001628 #99d9d9 #e9072b|Blues:#002f87 #fcb514 #ffffff|Lightning:#002868 #ffffff #002868|Maple Leafs:#00205b #ffffff #00205b|Utah Hockey:#71afe5 #ffffff #71afe5|Canucks:#00205b #00843d #ffffff|Golden Knights:#b4975a #333f42 #c8102e|Capitals:#041e42 #c8102e #ffffff|Jets Hockey:#041e42 #004c97 #ac162c',
+College:'Alabama:#9e1b32 #ffffff #828a8f|Ohio State:#bb0000 #ffffff #666666|Michigan:#00274c #ffcb05 #ffffff|Georgia:#ba0c2f #ffffff #ba0c2f|Texas:#bf5700 #ffffff #bf5700|LSU:#461d7c #fdd023 #ffffff|Notre Dame:#0c2340 #c99700 #ffffff|Clemson:#f56600 #522d80 #ffffff|Oregon:#154733 #fee123 #ffffff|USC:#990000 #ffc72c #ffffff|Penn State:#041e42 #ffffff #041e42|Florida:#0021a5 #fa4616 #ffffff|Tennessee:#ff8200 #ffffff #58595b|Oklahoma:#841617 #fdf9d8 #ffffff|Duke:#003087 #ffffff #003087|North Carolina:#7bafd4 #ffffff #13294b|Kentucky:#0033a0 #ffffff #0033a0|Kansas:#0051ba #e8000d #ffffff|Auburn:#0c2340 #e87722 #ffffff|Florida State:#782f40 #ceb888 #ffffff|Miami Hurricanes:#f47321 #005030 #ffffff|Cincinnati Bearcats:#e00122 #ffffff #e00122|Texas A&M:#500000 #ffffff #500000|Wisconsin:#c5050c #ffffff #c5050c|Iowa:#ffcd00 #ffffff #ffcd00'};
+const TEAMS=[];for(const lg in TEAM_SRC)TEAM_SRC[lg].split('|').forEach(e=>{const[n,c]=e.split(':');TEAMS.push({n,lg,c:c.split(' ').map(hx).map(ledSafe)});});
+// vibe dictionary: keyword -> [palette hexes, fx, speed]
+const V=(p,fx,spd)=>({p:p.split(' ').map(hx),fx,spd});
+const VIBES={
+// moods
+romantic:V('#ff0040 #ff4f8a #b0005a #ff8fb0','breathe',.5),love:V('#ff0040 #ff60a0 #ff0000','heartbeat',1),chill:V('#3050ff #00c8ff #7a40ff','aurora',.6),calm:V('#2040ff #00a0ff #60e0ff','breathe',.4),relax:V('#3040ff #00b0c0 #8060ff','breathe',.4),cozy:V('#ff7a1a #ff4000 #ffb050','candle',1),happy:V('#ffd000 #ff6a00 #00e5ff #ff2bd6','jump',1.2),sad:V('#1a2a80 #3050a0 #6070c0','breathe',.3),angry:V('#ff0000 #800000 #ff3000','strobe',1.4),rage:V('#ff0000 #ff3000 #ffffff','strobe',1.8),energy:V('#ff00d4 #00f0ff #ffff00','strobe',1.5),hype:V('#ff00d4 #00f0ff #7a00ff #00ff6a','disco',1.7),party:V('#ff00d4 #00f0ff #7a00ff #00ff6a','disco',1.4),rave:V('#00ff40 #ff00ff #00f0ff #ffff00','strobe',1.8),focus:V('#ffffff #e0f0ff #c0e0ff','breathe',.3),study:V('#ffffff #fff0d8','breathe',.25),sleep:V('#200040 #100030 #ff3000','breathe',.2),spooky:V('#ff5a00 #8a00ff #20ff20','lightning',1),scary:V('#ff0000 #300000 #8a00ff','lightning',1.3),creepy:V('#20ff20 #8a00ff #003000','lightning',1),dreamy:V('#ff9ad5 #b28aff #8ad5ff','aurora',.5),mystic:V('#7a00ff #00ffd0 #ff00a0','aurora',.7),magic:V('#b000ff #00e5ff #ff40d0 #ffffff','sparkle',1),sexy:V('#ff0050 #a00060 #ff2000','breathe',.6),retro:V('#ff2a6d #05d9e8 #d1f7ff #ff6c11','fade',.8),synthwave:V('#ff2a6d #7a00ff #05d9e8 #ff6c11','fade',.9),vaporwave:V('#ff71ce #01cdfe #05ffa1 #b967ff','fade',.7),cyberpunk:V('#fcee0a #00f0ff #ff003c #7a00ff','jump',1.4),zombie:V('#40ff00 #305000 #ff0000 #80ff40','lightning',1.2),apocalypse:V('#ff3000 #802000 #40ff00','lightning',1.4),alien:V('#40ff00 #00ffa0 #a0ff00','pulse',1.1),space:V('#100060 #4000ff #ff00d0 #ffffff','twinkle',.8),galaxy:V('#3000a0 #a000ff #ff00d0 #00c0ff','aurora',.8),heaven:V('#ffffff #fff0c0 #c0e0ff','breathe',.4),hell:V('#ff0000 #ff4000 #400000','fire',1.5),villain:V('#7a00ff #20ff20 #ff0000','lightning',1),hero:V('#0040ff #ff0000 #ffd000','jump',1),
+// places
+miami:V('#ff2bd6 #00f0ff #ff7a00 #7a00ff','fade',1),vegas:V('#ffd000 #ff0040 #00f0ff #ff00d4','jump',1.6),tokyo:V('#ff0080 #00f0ff #ffffff #7a00ff','jump',1.3),paris:V('#ffd0a0 #ff80a0 #ffffff','breathe',.5),hawaii:V('#00e5ff #ff5a1f #ffd000 #00ff9c','fade',.7),tropical:V('#00ff9c #ffd000 #ff5a1f #00e5ff','fade',.8),beach:V('#00c8ff #ffe080 #00ffd0','ocean',.8),ocean:V('#0020ff #00a0ff #00ffd0','ocean',1),underwater:V('#0010a0 #0080ff #00ffd0','ocean',.7),ice:V('#ffffff #9fd8ff #3a7bff #00e5ff','twinkle',.7),cave:V('#003050 #00a0c0 #a0f0ff','breathe',.5),arctic:V('#ffffff #a0e0ff #00c0ff','twinkle',.6),jungle:V('#00a020 #60ff00 #ffd000 #008040','fade',.6),forest:V('#00802a #40c040 #a0ff60','breathe',.5),desert:V('#ffb050 #ff7020 #ffd090','fade',.4),volcano:V('#ff2000 #ff6000 #ffa000','fire',1.4),club:V('#ff00d4 #7a00ff #00f0ff','strobe',1.5),disco:V('#ff00ff #00ffff #ffff00 #ff0000','disco',1.3),city:V('#ffd000 #ff0040 #00a0ff','fade',.9),nights:V('#7a00ff #ff00d4 #00f0ff','fade',.8),night:V('#0a1440 #3020a0 #6040ff','breathe',.4),
+// food & drink
+pizza:V('#ff3000 #ffd000 #00a020','fade',.8),taco:V('#ffd000 #00c020 #ff3000','jump',1),candy:V('#ff60c0 #60e0ff #ffff60 #a060ff','jump',1.1),cotton:V('#ffa0e0 #a0e0ff','fade',.5),lemon:V('#fff000 #c0ff00 #ffffff','fade',.6),lime:V('#80ff00 #c0ff40 #40ff00','fade',.6),mint:V('#40ffb0 #a0ffe0 #ffffff','fade',.5),berry:V('#c00060 #6000c0 #ff0080','fade',.6),grape:V('#7000c0 #a040ff #500090','fade',.6),orange:V('#ff6a00 #ffa000','fade',.6),coffee:V('#a05020 #ff9040 #602000','candle',.8),wine:V('#800030 #c00040 #ff2060','breathe',.4),champagne:V('#ffe0a0 #ffffff #ffd000','sparkle',1),margarita:V('#a0ff40 #ffffff #40ff80','fade',.8),bubblegum:V('#ff70c0 #ff40a0 #ffa0e0','pulse',.9),
+// weather & nature
+storm:V('#3040a0 #ffffff #6070ff','lightning',1.2),thunder:V('#3040a0 #ffffff #a0a0ff','lightning',1.5),rain:V('#0030ff #0080ff #00c0ff','ocean',1),snow:V('#ffffff #c0e0ff #9fd8ff','twinkle',.7),sunset:V('#ff2a6d #ff7a00 #ffc400 #a000ff','fade',.5),sunrise:V('#ff7a90 #ffb060 #ffe0a0','fade',.4),sunny:V('#ffd000 #ff9000 #fff0a0','breathe',.5),aurora:V('#00ff80 #00ffd0 #8000ff #ff00a0','aurora',1),lightning:V('#ffffff #a0a0ff','lightning',1.6),fire:V('#ff2000 #ff6000 #ffa000','fire',1.2),flower:V('#ff9ad5 #fff27a #b28aff','fade',.5),
+// holidays
+christmas:V('#ff0000 #00ff20 #ffffff #ffd000','jump',.9),xmas:V('#ff0000 #00ff20 #ffffff','jump',.9),halloween:V('#ff5a00 #8a00ff #20ff20','lightning',1),thanksgiving:V('#ff7a00 #c04000 #ffb030','pulse',.7),easter:V('#ffb0e0 #b0e0ff #fff0a0 #c0ffb0','fade',.6),valentine:V('#ff0040 #ff60a0 #ff0000','heartbeat',1),patrick:V('#00ff30 #00a020 #ffd000','fade',.8),irish:V('#00ff30 #ffffff #ff8000','fade',.8),july:V('#ff0000 #ffffff #0030ff','jump',1.2),america:V('#ff0000 #ffffff #0030ff','jump',1.1),usa:V('#ff0000 #ffffff #0030ff','jump',1.1),hanukkah:V('#0040ff #ffffff #80c0ff','twinkle',.8),diwali:V('#ff9000 #ffd000 #ff0060 #a000ff','sparkle',1),birthday:V('#ff00d4 #ffd000 #00f0ff #00ff6a','sparkle',1.3),wedding:V('#ffffff #ffe0c0 #ffd0e0','breathe',.4),newyear:V('#ffd700 #ffffff #ff40d0','sparkle',1.4),pride:V('#ff0000 #ff8000 #ffff00 #00ff00 #0040ff #8000ff','fade',1),mardi:V('#8000c0 #00a040 #ffd000','jump',1.1),cinco:V('#00a040 #ffffff #ff0020','jump',1.1),
+// generic sports words
+game:V('#ff0000 #ffffff #0040ff','jump',1.2),football:V('#00a020 #ffffff #a05020','jump',1.1),touchdown:V('#ffffff #ffd000','strobe',1.6),championship:V('#ffd000 #ffffff','sparkle',1.4),
+// colors
+red:V('#ff0000 #c00000','breathe',.6),blue:V('#0030ff #0080ff','breathe',.6),green:V('#00ff30 #00a020','breathe',.6),purple:V('#8000ff #c040ff','breathe',.6),pink:V('#ff40b0 #ff80d0','breathe',.6),gold:V('#ffc000 #ffe080','sparkle',.8),silver:V('#e0e8ff #a0a8c0','twinkle',.7),
+};
+const SYN={sexy:'sexy',smooth:'chill',lofi:'chill','lo-fi':'chill',moody:'sad',hot:'fire',summer:'tropical',winter:'snow',gym:'energy',workout:'energy',edm:'rave',techno:'rave',neon:'party',vibes:'party',scared:'scary',ghost:'spooky',witch:'spooky',undead:'zombie',ufo:'alien',stars:'space',cosmic:'galaxy',ice:'ice',frozen:'ice',glacier:'ice',sea:'ocean',lake:'ocean',island:'tropical',sun:'sunny',cloud:'calm',clouds:'calm',lava:'volcano',inferno:'hell',devil:'hell',angel:'heaven',date:'romantic',kiss:'love',cuddle:'cozy',fireplace:'cozy',candle:'cozy',holiday:'christmas',santa:'christmas',pumpkin:'halloween',turkey:'thanksgiving',fireworks:'newyear',nye:'newyear',st:'patrick',patricks:'patrick',fourth:'july','4th':'july',nfl:'football',super:'championship',bowl:'championship',win:'championship'};
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function hsvP(h,s,v){h=((h%360)+360)%360;const f=n=>{const k=(n+h/60)%6;return Math.round(v*(1-s*Math.max(0,Math.min(k,4-k,1)))*255)};return[f(5),f(3),f(1)];}
+const FX_POOL=['fade','aurora','breathe','sparkle','jump','pulse','twinkle','disco','ocean'];
+const AMBIG=/^(thunder|lightning|heat|magic|jazz|stars|wild|suns|kings|giants|rockets|blues|sharks|kraken|ducks|hurricanes|avalanche|flames|storm|texas|miami hurricanes)$/;
+function findTeam(text,strict){const t=' '+text.toLowerCase().replace(/[^a-z0-9& ]/g,' ').replace(/\s+/g,' ')+' ';let best=null;
+ for(const tm of TEAMS){const n=tm.n.toLowerCase();if(t.includes(' '+n+' ')&&(!best||n.length>best.n.length))best=tm;}
+ if(best&&strict&&AMBIG.test(best.n.toLowerCase())&&!/ (game|team|fans?|score|vs|playoffs?|okc|oklahoma|miami|orlando|utah|phoenix|sacramento|dallas|tampa|houston|seattle|san jose|anaheim|colorado|calgary|carolina|st louis|new york|ny|la|minnesota) /.test(t))return null;return best;}
+function vibe(text){const raw=(text||'').trim();const name=raw||'mystery';const lc=name.toLowerCase();
+ const tm=findTeam(lc,true);if(tm)return{name,src:'team',team:tm.n+' ('+tm.lg+')',pal:tm.c.map(c=>c.slice()),fx:/score|touchdown|win|goal/.test(lc)?'strobe':'jump',spd:1.2};
+ const words=lc.replace(/[^a-z0-9\- ]/g,' ').split(/\s+/).filter(Boolean);const hits=[];
+ words.forEach(w=>{let k=VIBES[w]?w:SYN[w]&&VIBES[SYN[w]]?SYN[w]:VIBES[w.replace(/s$/,'')]?w.replace(/s$/,''):null;if(k&&!hits.includes(k))hits.push(k);});
+ if(hits.length){const a=VIBES[hits[0]];let pal=a.p.map(c=>c.slice());
+  for(const k of hits.slice(1))VIBES[k].p.slice(0,2).forEach(c=>{if(pal.length<6)pal.push(c.slice());});
+  const fx=hits.map(k=>VIBES[k].fx).find(f=>['lightning','strobe','fire','disco','heartbeat'].includes(f))||a.fx;
+  return{name,src:'dict',keys:hits,pal,fx,spd:hits.reduce((s,k)=>s+VIBES[k].spd,0)/hits.length};}
+ const h=hash32(lc),base=h%360,n=3+(h>>>9)%3,spread=[30,72,120,150][(h>>>12)%4],pal=[];
+ for(let i=0;i<n;i++)pal.push(hsvP(base+i*spread+((h>>>(i*3))&15),.75+((h>>>(16+i))&1)*.25,1));
+ return{name,src:'hash',pal,fx:FX_POOL[(h>>>20)%FX_POOL.length],spd:.5+((h>>>24)%12)/10};}
+// WMO weather code -> look
+function weatherLook(code,isDay){const c=+code;
+ if(c>=95)return{k:'storm',n:'⛈ Thunderstorm',fx:'lightning',pal:'#202a80 #ffffff #6070ff'};
+ if((c>=71&&c<=77)||c===85||c===86)return{k:'snow',n:'❄️ Snow',fx:'twinkle',pal:'#ffffff #c0e0ff #9fd8ff'};
+ if((c>=51&&c<=67)||(c>=80&&c<=82))return{k:'rain',n:'🌧 Rain',fx:'ocean',pal:'#0020ff #00a0ff #00ffd0'};
+ if(c===45||c===48)return{k:'fog',n:'🌫 Fog',fx:'breathe',pal:'#a0b0c0 #d0e0f0 #8090a0'};
+ if(!isDay)return c<=2?{k:'night',n:'🌙 Clear night',fx:'breathe',pal:'#0a1460 #2030c0 #3a20a0'}:{k:'cloudnight',n:'☁️ Cloudy night',fx:'breathe',pal:'#101840 #303a70 #202860'};
+ if(c<=1)return{k:'sunny',n:'☀️ Sunny',fx:'breathe',pal:'#ffb000 #ff7a10 #ffe080'};
+ return{k:'cloudy',n:'⛅ Cloudy',fx:'breathe',pal:'#c0d0ff #ffd090 #90a8e0'};}
+// sky clock: unix seconds now, sunrise, sunset -> rgb
+function skyColor(now,rise,set){const H=3600;const k=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*Math.max(0,Math.min(1,t))));
+ const stops=[[rise-1.5*H,'#0a1440'],[rise-.5*H,'#6a2a90'],[rise,'#ff5a7a'],[rise+.75*H,'#ffc070'],[rise+2.5*H,'#fff4e0'],[set-2*H,'#fff4e0'],[set-.75*H,'#ffb040'],[set,'#ff4a20'],[set+.4*H,'#c0207a'],[set+1.2*H,'#2a1a80'],[set+2*H,'#0a1440']];
+ if(now<=stops[0][0]||now>=stops[stops.length-1][0])return{c:hx('#0a1440'),phase:'night'};
+ for(let i=0;i<stops.length-1;i++){const[a,ca]=stops[i],[b,cb]=stops[i+1];if(now<b){const ph=now<rise?'dawn':now<rise+2.5*H?'morning':now<set-2*H?'day':now<set?'golden hour':'dusk';return{c:k(hx(ca),hx(cb),(now-a)/(b-a)),phase:ph};}}
+ return{c:hx('#0a1440'),phase:'night'};}
+// camera: dominant color from RGBA pixels (hue histogram weighted by saturation*value)
+function dominant(px){const B=24,acc=Array.from({length:B},()=>[0,0,0,0]);let ar=0,ag=0,ab=0,n=0;
+ for(let i=0;i<px.length;i+=4){const r=px[i],g=px[i+1],b=px[i+2];ar+=r;ag+=g;ab+=b;n++;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;if(mx<30)continue;
+  const s=d/mx;let h=0;if(d){h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h=(h*60+360)%360;}const w=s*s*mx/255;const bi=Math.floor(h/360*B)%B;const a=acc[bi];a[0]+=r*w;a[1]+=g*w;a[2]+=b*w;a[3]+=w;}
+ const avg=n?[ar/n,ag/n,ab/n]:[0,0,0];let best=null;for(const a of acc)if(a[3]>0&&(!best||a[3]>best[3]))best=a;
+ const tw=acc.reduce((s,a)=>s+a[3],0);if(!best||best[3]<.02*n)return{dom:avg,avg};return{dom:[best[0]/best[3],best[1]/best[3],best[2]/best[3]],avg,conf:best[3]/tw};}
+// make a camera color pop on LEDs: boost saturation, normalize brightness
+function ledBoost(c){const mx=Math.max(...c,1),mn=Math.min(...c);if(mx-mn<18)return[255,255,255].map(v=>Math.round(v*Math.min(1,.35+mx/255)));
+ return c.map(v=>Math.round(Math.max(0,(v-mn*.7))/(mx-mn*.7)*255));}
+//</PURE>
 
 // ===================== UI build =====================
 function chipRow(host,get,set){host.innerHTML='';Object.entries(PALS).forEach(([k,p])=>{const b=document.createElement('button');b.className='chip'+(get()===k?' sel':'');
@@ -363,6 +475,137 @@ const MN=['Jump RGB','Jump 7-color','Crossfade R','Crossfade G','Crossfade B','C
 MN.forEach((n,i)=>{if(0x80+i>0x9C)return;const o=document.createElement('option');o.value=0x80+i;o.textContent=n;$('mode').appendChild(o);});
 $('modego').onclick=()=>{stopAll();cmd.bri(S.bri);cmd.mode(+$('mode').value);cmd.speed(+$('mspd').value);$('nowlbl').textContent='Built-in: '+$('mode').selectedOptions[0].textContent;};
 $('mspd').oninput=e=>cmd.speed(+e.target.value);
+// ===================== SIGNATURE: UI =====================
+document.querySelectorAll('#sigtabs button').forEach(b=>b.onclick=()=>{const t=b.dataset.t,open=!b.classList.contains('sel');
+ document.querySelectorAll('#sigtabs button').forEach(x=>x.classList.remove('sel'));document.querySelectorAll('.sigp').forEach(p=>p.classList.remove('show'));
+ if(open){b.classList.add('sel');$('p_'+t).classList.add('show');}});
+const showMsg=(id,t)=>{$(id).style.display=t?'block':'none';$(id).textContent=t||'';};
+// generic "live" source: an effect running with its own state, or custom frame fn
+function liveFx(fx,pal,label,kind,el,spd=1){const st={};let t=0;return{type:'live',kind,label,el,fx,pal,spd,f:(dt)=>{t+=dt*spd*spdV();return FX[fx].f(t,pal,intV(),st,null);}};}
+function liveStop(r){const k=r&&r.kind;if(k!=='cam')camOff();if(k!=='wx')wxOff();if(k!=='sky')skyOff();}
+const _sab=stopAllButMic;stopAllButMic=function(){liveStop(null);_sab();};
+function addScene(s){SC.push(s);localStorage.setItem('scenes',JSON.stringify(SC));drawScenes();}
+const chipsHtml=pal=>pal.map(c=>`<span class="pchip" style="background:${hex(c)};color:${hex(c)}"></span>`).join('');
+
+// ---- 1. camera color match
+let camStream=null,camSm=null,camDom=true,camCv=document.createElement('canvas'),camCx=camCv.getContext('2d',{willReadFrequently:true});camCv.width=camCv.height=40;
+let camLast=0,camTarget=null;
+$('camsmv').textContent=$('camsm').value+'%';$('camsm').oninput=e=>$('camsmv').textContent=e.target.value+'%';
+$('cammode').onclick=()=>{camDom=!camDom;$('cammode').textContent='Mode: '+(camDom?'Dominant':'Average');};
+function camOff(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}$('camv').srcObject=null;$('camwrap').style.display='none';$('cambtn').classList.remove('on-btn');$('cambtn').textContent='📷 Start Camera Match';}
+async function camOn(){showMsg('cammsg','');
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){showMsg('cammsg','This browser does not give web pages camera access. In Bluefy, check iPhone Settings → Bluefy → Camera, or try updating Bluefy.');return;}
+ try{camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:640},height:{ideal:480}},audio:false});}
+ catch(e){showMsg('cammsg',e.name==='NotAllowedError'?'Camera permission was denied. Allow Camera for Bluefy in iPhone Settings → Bluefy, then reload this page.':e.name==='NotFoundError'?'No camera found on this device.':'Could not open camera: '+(e.message||e.name));camStream=null;return;}
+ const v=$('camv');v.srcObject=camStream;$('camwrap').style.display='block';try{await v.play();}catch(e){}
+ camSm=null;begin({type:'live',kind:'cam',label:'📷 Camera Match',el:$('cambtn'),f:camFrame});
+ $('cambtn').classList.add('on-btn');$('cambtn').textContent='📷 Matching… (tap to stop)';}
+function camFrame(dt,now){const v=$('camv');if(!camStream||v.readyState<2)return camSm||[0,0,0];
+ if(now-camLast>60){camLast=now;const w=v.videoWidth,h=v.videoHeight,s=Math.min(w,h)*.4;
+  camCx.drawImage(v,(w-s)/2,(h-s)/2,s,s,0,0,40,40);const r=dominant(camCx.getImageData(0,0,40,40).data);camTarget=ledBoost(camDom?r.dom:r.avg);$('camsw').style.background=hex(camTarget);}
+ if(!camTarget)return[0,0,0];const k=+$('camsm').value/100;camSm=camSm?mix(camTarget,camSm,Math.pow(k,dt*20)):camTarget.slice();return camSm;}
+$('cambtn').onclick=()=>{if(camStream){stopAll();}else camOn();};
+$('camlock').onclick=()=>{const c=(camSm||camTarget||S.color).map(clamp);stopAll();setColor(c);const n=prompt('Save this color as a scene. Name?','📷 '+hex(c));if(n)addScene({n,color:c});};
+
+// ---- 3. vibe generator (before voice: voice uses it)
+let lastVibe=null;
+function playVibe(txt){const v=vibe(txt);lastVibe=v;
+ $('vibeout').innerHTML=`<div style="font-weight:700;margin-bottom:6px">🔮 “${v.name.replace(/</g,'&lt;')}” → ${FX[v.fx].n} · ${v.spd.toFixed(1)}×</div>${chipsHtml(v.pal)}<div class="mute">${v.src==='team'?'Team colors: '+v.team:v.src==='dict'?'Matched: '+v.keys.join(', '):'Unique palette generated from your words'}</div>`;
+ begin(liveFx(v.fx,v.pal,'🔮 '+v.name,'vibe',$('vibego'),v.spd));}
+$('vibego').onclick=()=>playVibe($('vibein').value);
+$('vibein').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('vibein').blur();playVibe($('vibein').value);}});
+['Miami nights','Bengals game','zombie apocalypse','romantic','ice cave','cyberpunk Tokyo','cozy fireplace','Shawn'].forEach(x=>{const b=document.createElement('button');b.className='chip';b.textContent=x;b.onclick=()=>{$('vibein').value=x;playVibe(x);};$('vibeex').appendChild(b);});
+$('vibesave').onclick=()=>{if(!lastVibe){playVibe($('vibein').value);}const v=lastVibe;const k='vibe_'+hash32(v.name).toString(36);
+ PALS[k]={n:v.name,c:v.pal};const cp=JSON.parse(localStorage.getItem('customPals')||'{}');cp[k]=PALS[k];localStorage.setItem('customPals',JSON.stringify(cp));
+ addScene({n:'🔮 '+v.name,fx:v.fx,pal:k,spd:Math.round(Math.min(20,Math.max(1,v.spd*10)))});chipRow($('pals'),()=>curPal,k=>{curPal=k});$('vibesave').textContent='✓ Saved to Scenes';setTimeout(()=>$('vibesave').textContent='⭐ Save vibe as scene',1500);};
+// restore saved vibe palettes so saved scenes work after reload
+Object.assign(PALS,JSON.parse(localStorage.getItem('customPals')||'{}'));chipRow($('pals'),()=>curPal,k=>{curPal=k;if(run&&run.type==='fx'&&!run.label){run.pal=PALS[k].c;run.palKey=k;}});
+
+// ---- 4. game day
+const LGI={NFL:'🏈',NBA:'🏀',MLB:'⚾',NHL:'🏒',College:'🎓'};const SCORE_TXT={NFL:'🏈 TOUCHDOWN!',NBA:'🏀 BUCKET!',MLB:'⚾ HOME RUN!',NHL:'🚨 GOAL!',College:'🎓 TOUCHDOWN!'};
+$('lg').innerHTML=Object.keys(TEAM_SRC).map(l=>`<option>${l}</option>`).join('');
+const curTeam=()=>TEAMS.find(t=>t.lg===$('lg').value&&t.n===$('team').value);
+function drawTeams(){const l=$('lg').value;$('team').innerHTML=TEAMS.filter(t=>t.lg===l).map(t=>t.n).sort().map(n=>`<option>${n}</option>`).join('');teamPick();}
+function teamPick(){const t=curTeam();if(!t)return;$('teampal').innerHTML=t.c.map(c=>`<i style="background:${hex(c)};height:14px"></i>`).join('');$('score').textContent=SCORE_TXT[t.lg];localStorage.setItem('team',t.lg+'|'+t.n);}
+$('lg').onchange=drawTeams;$('team').onchange=teamPick;
+{const[l,n]=(localStorage.getItem('team')||'NFL|Bengals').split('|');$('lg').value=l;drawTeams();$('team').value=n;teamPick();}
+function playTeam(){const t=curTeam();begin(liveFx('jump',t.c,LGI[t.lg]+' '+t.n+' Game Day','game',$('gameplay'),.9));}
+$('gameplay').onclick=playTeam;
+let scoreTimer=null;
+$('score').onclick=()=>{const t=curTeam();const prev=run&&run.kind!=='score'?run:(run&&run.prev)||null;const pal=t.c;let tt=0,st={};
+ if(!powerOn){powerOn=true;cmd.on();$('power').classList.add('on-btn');}cmd.bri(100);lastKey='';startLoop();wakeOn(true);
+ const cel={type:'live',kind:'score',prev,label:SCORE_TXT[t.lg]+' '+t.n,el:$('score'),f:dt=>{tt+=dt;const ph=tt%2.5;
+  if(ph<1.2){const hz=12,on=(tt*hz)%1<.45;return on?pal[Math.floor(tt*hz)%pal.length]:[0,0,0];} // fast team strobe
+  if(ph<1.5)return[255,255,255]; // white flash
+  return palAt(pal,tt*6);}}; // spinning color chase
+ clearTimeout(scoreTimer);if(navigator.vibrate)navigator.vibrate([200,100,200,100,400]);
+ run=cel;markActive();scoreTimer=setTimeout(()=>{if(run===cel){if(prev){run=prev;markActive();if(prev.type==='live'||prev.type==='fx'||prev.type==='seq')cmd.bri(100);}else playTeam();}},10000);};
+
+// ---- 5. live weather + 6. sky clock (Open-Meteo, no key)
+let geo=null,wxTimer=null,skyTimer=null,skyData=null;
+function getPos(){return new Promise((res,rej)=>{if(geo)return res(geo);const saved=JSON.parse(localStorage.getItem('geo')||'null');
+ if(!navigator.geolocation){return saved?res(geo=saved):rej(new Error('Location is not available in this browser. Type a city below.'));}
+ navigator.geolocation.getCurrentPosition(p=>{geo={lat:+p.coords.latitude.toFixed(3),lon:+p.coords.longitude.toFixed(3),name:'your location'};localStorage.setItem('geo',JSON.stringify(geo));res(geo);},
+  e=>{if(saved)return res(geo=saved);rej(new Error(e.code===1?'Location permission denied. Allow Location for Bluefy in iPhone Settings, or type a city below.':'Could not get your location. Type a city below.'));},{timeout:12000,maximumAge:600000});});}
+async function cityPos(q){const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&name='+encodeURIComponent(q));const j=await r.json();
+ if(!j.results||!j.results.length)throw new Error('City not found: '+q);const x=j.results[0];geo={lat:x.latitude,lon:x.longitude,name:x.name+(x.admin1?', '+x.admin1:'')};localStorage.setItem('geo',JSON.stringify(geo));return geo;}
+async function fetchWx(g){const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${g.lat}&longitude=${g.lon}&current=weather_code,is_day,temperature_2m&daily=sunrise,sunset&timeformat=unixtime&timezone=auto&forecast_days=2&temperature_unit=fahrenheit`);
+ if(!r.ok)throw new Error('Weather service error '+r.status);return r.json();}
+function wxOff(){clearInterval(wxTimer);wxTimer=null;$('wxbtn').classList.remove('on-btn');$('wxbtn').textContent='⛅ Start Live Weather';}
+async function wxStart(useCity){showMsg('wxmsg','');$('wxinfo').textContent='Getting weather…';
+ try{const g=useCity?await cityPos($('wxcity').value.trim()):await getPos();
+  const apply=async()=>{const j=await fetchWx(g);const L=weatherLook(j.current.weather_code,j.current.is_day);const pal=P(L.pal);
+   $('wxinfo').textContent=`${L.n} · ${Math.round(j.current.temperature_2m)}°F · ${g.name}`;
+   const r=liveFx(L.fx,pal,'⛅ Weather: '+L.n,'wx',$('wxbtn'),L.k==='storm'?1.2:.8);if(run&&run.kind==='wx'){run.f=r.f;run.label=r.label;}else begin(r);};
+  await apply();clearInterval(wxTimer);wxTimer=setInterval(()=>apply().catch(e=>showMsg('wxmsg','Refresh failed (will retry): '+e.message)),600000);
+  $('wxbtn').classList.add('on-btn');$('wxbtn').textContent='⛅ Live Weather ON (tap to stop)';
+ }catch(e){$('wxinfo').textContent='';showMsg('wxmsg',e.message||'Weather unavailable (are you offline?)');}}
+$('wxbtn').onclick=()=>{if(wxTimer){stopAll();}else wxStart(false);};
+$('wxcitygo').onclick=()=>{if(!$('wxcity').value.trim())return;geo=null;wxStart(true);};
+function skyOff(){clearInterval(skyTimer);skyTimer=null;$('skybtn').classList.remove('on-btn');$('skybtn').textContent='🌅 Start Sky Clock';}
+async function skyStart(){showMsg('skymsg','');$('skyinfo').textContent='Finding the sun…';
+ try{const g=await getPos();const load=async()=>{const j=await fetchWx(g);skyData={rise:j.daily.sunrise,set:j.daily.sunset};};await load();
+  let tt=0;const frame=dt=>{tt+=dt;const n=Date.now()/1000;const d=n>skyData.set[0]+3*3600&&skyData.rise[1]?1:0;
+   const r=skyColor(n,skyData.rise[d],skyData.set[d]);const f=t=>new Date(t*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+   $('skyinfo').textContent=`${r.phase} · sunrise ${f(skyData.rise[d])} · sunset ${f(skyData.set[d])}`;
+   return sc(r.c,.85+.15*Math.sin(tt*.6));}; // gentle breathing drift
+  begin({type:'live',kind:'sky',label:'🌅 Sky Clock',el:$('skybtn'),f:frame});
+  skyTimer=setInterval(()=>load().catch(()=>{}),3*3600000);$('skybtn').classList.add('on-btn');$('skybtn').textContent='🌅 Sky Clock ON (tap to stop)';
+ }catch(e){$('skyinfo').textContent='';showMsg('skymsg',(e.message||'Could not load sun times')+(/city/.test(e.message)?' (use the city box in Live Weather, then try again)':''));}}
+$('skybtn').onclick=()=>{if(skyTimer){stopAll();}else skyStart();};
+
+// ---- 2. voice commands
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,recOn=false;
+const VCOL={red:[255,0,0],orange:[255,106,0],yellow:[255,196,0],green:[0,255,64],cyan:[0,229,255],teal:[0,200,180],blue:[0,64,255],purple:[138,0,255],violet:[138,0,255],pink:[255,0,180],magenta:[255,0,255],white:[255,255,255],warm:[255,140,40],gold:[255,190,0]};
+function voiceCmd(t){t=t.toLowerCase().trim();$('vheard').textContent='“'+t+'”';
+ const has=w=>new RegExp('\\b'+w+'\\b').test(t);
+ if(/lights? off|turn off|power off|^off$/.test(t)){stopAll();powerOn=false;cmd.off();$('power').classList.remove('on-btn');out([0,0,0]);return'Off';}
+ if(/lights? on|turn on|power on|^on$/.test(t)){powerOn=true;cmd.on();$('power').classList.add('on-btn');setColor(S.color);return'On';}
+ if(/^stop|stop show|freeze/.test(t)){stopAll();setColor(S.color);return'Stopped';}
+ if(/brighter|brighten|more light|turn it up/.test(t)){S.bri=Math.min(100,S.bri+20);$('bri').value=S.bri;$('bv').textContent=S.bri+'%';cmd.bri(S.bri);save();return'Brightness '+S.bri+'%';}
+ if(/dimmer|dim|darker|less light|turn it down/.test(t)){S.bri=Math.max(5,S.bri-20);$('bri').value=S.bri;$('bv').textContent=S.bri+'%';cmd.bri(S.bri);save();return'Brightness '+S.bri+'%';}
+ if(/insane/.test(t)){$('insane').click();return'Insane Show';}
+ if(/party/.test(t)){begin(liveFx('disco',PALS.neon.c,'🔥 Party Mode','voice',null,1.3));return'Party';}
+ if(/music|dance/.test(t)){$('micbtn').click();return'Music sync';}
+ if(/touchdown|score|goal|home run/.test(t)){$('score').click();return'Celebrate!';}
+ if(/weather/.test(t)){wxStart(false);return'Weather';}
+ if(/sky|sunset clock|time of day/.test(t)){skyStart();return'Sky Clock';}
+ if(/camera|match/.test(t)){camOn();return'Camera';}
+ if(/storm|thunder|lightning/.test(t)){begin(liveFx('lightning',PALS.ice.c,'🌩 Storm','voice',null,1));return'Storm';}
+ const tm=findTeam(t,true);if(tm){$('lg').value=tm.lg;drawTeams();$('team').value=tm.n;teamPick();playTeam();return tm.n;}
+ const sh=SHOWS.find(s=>t.includes(s.id)||t.includes(s.n.replace(/[^a-z' ]/gi,'').trim().toLowerCase().replace(/'s$/,'')));
+ if(sh){$('s_'+sh.id).click();return sh.n;}
+ for(const k of FX_LIST){const nm=FX[k].n.replace(/[^a-z ]/gi,'').trim().toLowerCase();if(has(k)||(nm&&has(nm))){playFx(k,null);return FX[k].n;}}
+ for(const k in VCOL)if(has(k)){stopAll();setColor(VCOL[k]);return k;}
+ const v=t.replace(/^(vibe|make it|set|give me|play)\s+/,'');$('vibein').value=v;playVibe(v);return'Vibe: '+v;}
+if(!SR){$('vbtn').disabled=true;$('vbtn').textContent='🎙 Voice not supported here';showMsg('vmsg','This browser does not support speech recognition (Bluefy usually doesn’t). Tip: tap the Vibe Generator box and use the 🎤 dictation key on the iPhone keyboard — say any vibe, team, or color and tap ▶.');}
+else{$('vbtn').onclick=()=>{if(recOn){recOn=false;rec&&rec.stop();return;}showMsg('vmsg','');
+ rec=new SR();rec.lang='en-US';rec.continuous=true;rec.interimResults=false;
+ rec.onresult=e=>{const r=e.results[e.results.length-1];if(r.isFinal){const a=voiceCmd(r[0].transcript);$('vheard').textContent+=' → '+a;}};
+ rec.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){recOn=false;showMsg('vmsg','Microphone / speech permission denied. Allow it in iPhone Settings for this browser, then reload.');}else if(e.error!=='no-speech')showMsg('vmsg','Voice error: '+e.error);};
+ rec.onend=()=>{if(recOn){try{rec.start();}catch(e){}}else{$('vbtn').classList.remove('on-btn');$('vbtn').textContent='🎙 Start Listening';}};
+ try{rec.start();recOn=true;$('vbtn').classList.add('on-btn');$('vbtn').textContent='🎙 Listening… (tap to stop)';}catch(e){showMsg('vmsg','Could not start voice: '+e.message);}};}
+
 startLoop();
-if(typeof module!=='undefined')module.exports={FX,PALS,INSANE,analyze,nowShow,hsv,palAt};
+if(typeof module!=='undefined')module.exports={FX,PALS,INSANE,analyze,nowShow,hsv,palAt,vibe,TEAMS,weatherLook,skyColor,dominant};
 </script></body></html>
