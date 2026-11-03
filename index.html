@@ -49,7 +49,7 @@ const S=JSON.parse(localStorage.getItem('lights')||'{}');S.color=S.color||[255,1
 const save=()=>localStorage.setItem('lights',JSON.stringify(S));
 let ch=null,dev=null,queue=[],busy=false,powerOn=true;
 function pump(){if(busy||!queue.length||!ch)return;busy=true;const b=queue.shift();
- const p=ch.properties.writeWithoutResponse&&ch.writeValueWithoutResponse?ch.writeValueWithoutResponse(b):ch.writeValue(b);
+ const p=ch.properties&&ch.properties.writeWithoutResponse&&ch.writeValueWithoutResponse?ch.writeValueWithoutResponse(b):ch.writeValue(b);
  p.catch(e=>console.warn(e)).finally(()=>setTimeout(()=>{busy=false;pump()},40));}
 function send(arr,key){if(!ch)return;const b=new Uint8Array(arr);
  if(key){queue=queue.filter(q=>q.k!==key)}b.k=key;queue.push(b);if(queue.length>20)queue.splice(0,queue.length-20);pump();}
@@ -60,12 +60,12 @@ if(!navigator.bluetooth){$('warn').style.display='block';$('connect').disabled=t
 function setStatus(t,on){$('status').textContent=t;$('connect').classList.toggle('on',!!on);$('connect').textContent=on?'Connected ✓ (tap to disconnect)':'Connect Lights';}
 $('connect').onclick=async()=>{
  if(dev&&dev.gatt.connected){stopShow();dev.gatt.disconnect();return;}
- try{setStatus('Searching…');dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'ELK-BLEDOM'}],optionalServices:[0xfff0]});
+ try{setStatus('Searching…');dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'ELK'},{namePrefix:'BLEDOM'},{services:['0000fff0-0000-1000-8000-00805f9b34fb']}],optionalServices:['0000fff0-0000-1000-8000-00805f9b34fb']});
   dev.addEventListener('gattserverdisconnected',()=>{ch=null;queue=[];setStatus('Disconnected');});
   setStatus('Connecting to '+(dev.name||'lights')+'…');const srv=await dev.gatt.connect();
-  const svc=await srv.getPrimaryService(0xfff0);ch=await svc.getCharacteristic(0xfff3);
+  const svc=await srv.getPrimaryService('0000fff0-0000-1000-8000-00805f9b34fb');ch=await svc.getCharacteristic('0000fff3-0000-1000-8000-00805f9b34fb');
   setStatus('Connected to '+(dev.name||'lights'),true);cmd.on();cmd.bri(S.bri);cmd.color(...S.color);powerOn=true;$('power').classList.add('on');
- }catch(e){setStatus(e.name==='NotFoundError'?'No device chosen':'Error: '+e.message);}
+ }catch(e){setStatus(e.name==='NotFoundError'?'No device chosen':'Error: '+((e&&(e.message||e.name))||String(e))+' (close other light apps and try again)');}
 };
 $('power').onclick=()=>{powerOn=!powerOn;if(powerOn)cmd.on();else{stopShow();cmd.off();}$('power').classList.toggle('on',powerOn);};
 const hex=c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('');
