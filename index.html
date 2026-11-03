@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d14"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>Lights</title>
+<style>
+:root{--bg:#0b0d14;--card:#151926;--line:#252b3d;--txt:#e9ecf5;--mute:#8a92a8;--acc:#7c9cff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:radial-gradient(circle at 50% -10%,#1d2340,var(--bg) 60%);color:var(--txt);font:16px/1.4 -apple-system,system-ui,sans-serif;padding:env(safe-area-inset-top) 16px 40px;min-height:100vh}
+h1{font-size:26px;margin:18px 0 4px}h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin:14px 0}
+button{font:inherit;color:var(--txt);background:#20263a;border:1px solid var(--line);border-radius:14px;min-height:52px;padding:0 16px;cursor:pointer}
+button:active{transform:scale(.97)}
+#connect{width:100%;min-height:64px;font-size:19px;font-weight:600;background:linear-gradient(135deg,#5b7cff,#a35bff);border:0}
+#connect.on{background:#1f3a2c;border:1px solid #2f7a52}
+#status{color:var(--mute);margin-top:8px;text-align:center}
+.row{display:flex;gap:10px;align-items:center}
+#power{flex:1;font-size:18px}#power.on{background:#2b3a1f;border-color:#6fbf3a}
+input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
+#wheel{width:100%;max-width:300px;aspect-ratio:1;display:block;margin:0 auto;touch-action:none;border-radius:50%}
+.sw{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.sw button{min-height:44px;border-radius:50%;aspect-ratio:1;padding:0}
+#cur{width:44px;height:44px;border-radius:12px;border:1px solid var(--line)}
+.shows{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.show{text-align:left;padding:12px;min-height:84px;position:relative}
+.show b{display:block}.show small{color:var(--mute)}
+.show .pal{display:flex;gap:3px;margin-top:6px}.show .pal i{flex:1;height:6px;border-radius:3px}
+.show.active{outline:2px solid #fff}
+.show.now::after{content:"NOW";position:absolute;top:8px;right:8px;font-size:10px;background:var(--acc);color:#000;padding:2px 6px;border-radius:6px;font-weight:700}
+#stop{width:100%;margin-top:12px;background:#3a1f25;border-color:#7a2f3c}
+#warn{display:none;background:#3a2b12;border-color:#a7792a}
+.mute{color:var(--mute);font-size:13px}
+</style></head><body>
+<h1>✨ Outdoor Lights</h1><div class="mute">ELK-BLEDOM controller</div>
+<div class="card" id="warn"><b>Web Bluetooth isn't available here.</b><br>On iPhone, Safari can't talk to Bluetooth lights. Install the free <b>Bluefy</b> browser from the App Store and open this page in it.</div>
+<div class="card"><button id="connect">Connect Lights</button><div id="status">Not connected</div></div>
+<div class="card"><div class="row"><button id="power">⏻ Power</button><div id="cur"></div></div>
+<h2 style="margin-top:16px">Brightness <span id="bv"></span></h2><input type="range" id="bri" min="0" max="100"></div>
+<div class="card"><h2>Color</h2><canvas id="wheel" width="600" height="600"></canvas><div class="sw" id="sw"></div>
+<div class="row" style="margin-top:12px"><input type="color" id="pick" style="width:100%;height:48px;border:0;background:none"></div></div>
+<div class="card"><h2>Light Shows</h2><div class="shows" id="shows"></div>
+<h2 style="margin-top:16px">Show speed <span id="sv"></span></h2><input type="range" id="spd" min="1" max="10" value="5">
+<button id="stop">■ Stop Show</button></div>
+<div class="card"><h2>Built-in effects</h2><div class="row"><select id="mode" style="flex:1;min-height:52px;background:#20263a;color:var(--txt);border-radius:14px;border:1px solid var(--line);font:inherit;padding:0 10px"></select><button id="modego">Run</button></div>
+<h2 style="margin-top:16px">Effect speed</h2><input type="range" id="mspd" min="0" max="100" value="50"></div>
+<script>
+const $=id=>document.getElementById(id);
+const S=JSON.parse(localStorage.getItem('lights')||'{}');S.color=S.color||[255,140,40];S.bri=S.bri??80;
+const save=()=>localStorage.setItem('lights',JSON.stringify(S));
+let ch=null,dev=null,queue=[],busy=false,powerOn=true;
+function pump(){if(busy||!queue.length||!ch)return;busy=true;const b=queue.shift();
+ const p=ch.properties.writeWithoutResponse&&ch.writeValueWithoutResponse?ch.writeValueWithoutResponse(b):ch.writeValue(b);
+ p.catch(e=>console.warn(e)).finally(()=>setTimeout(()=>{busy=false;pump()},40));}
+function send(arr,key){if(!ch)return;const b=new Uint8Array(arr);
+ if(key){queue=queue.filter(q=>q.k!==key)}b.k=key;queue.push(b);if(queue.length>20)queue.splice(0,queue.length-20);pump();}
+const cmd={on:()=>send([0x7E,0,4,0xF0,0,1,0xFF,0,0xEF],'p'),off:()=>send([0x7E,0,4,0,0,0,0xFF,0,0xEF],'p'),
+ color:(r,g,b)=>send([0x7E,0,5,3,r,g,b,0,0xEF],'c'),bri:x=>send([0x7E,0,1,Math.max(0,Math.min(100,x)),0,0,0,0,0xEF],'b'),
+ mode:m=>send([0x7E,0,3,m,3,0,0,0,0xEF],'m'),speed:s=>send([0x7E,0,2,s,0,0,0,0,0xEF],'s')};
+if(!navigator.bluetooth){$('warn').style.display='block';$('connect').disabled=true;$('status').textContent='Open in Bluefy to connect';}
+function setStatus(t,on){$('status').textContent=t;$('connect').classList.toggle('on',!!on);$('connect').textContent=on?'Connected ✓ (tap to disconnect)':'Connect Lights';}
+$('connect').onclick=async()=>{
+ if(dev&&dev.gatt.connected){stopShow();dev.gatt.disconnect();return;}
+ try{setStatus('Searching…');dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'ELK-BLEDOM'}],optionalServices:[0xfff0]});
+  dev.addEventListener('gattserverdisconnected',()=>{ch=null;queue=[];setStatus('Disconnected');});
+  setStatus('Connecting to '+(dev.name||'lights')+'…');const srv=await dev.gatt.connect();
+  const svc=await srv.getPrimaryService(0xfff0);ch=await svc.getCharacteristic(0xfff3);
+  setStatus('Connected to '+(dev.name||'lights'),true);cmd.on();cmd.bri(S.bri);cmd.color(...S.color);powerOn=true;$('power').classList.add('on');
+ }catch(e){setStatus(e.name==='NotFoundError'?'No device chosen':'Error: '+e.message);}
+};
+$('power').onclick=()=>{powerOn=!powerOn;if(powerOn)cmd.on();else{stopShow();cmd.off();}$('power').classList.toggle('on',powerOn);};
+const hex=c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('');
+function setColor(c,fromShow){c=c.map(v=>Math.round(v));cmd.color(...c);$('cur').style.background=hex(c);if(!fromShow){S.color=c;save();$('pick').value=hex(c);}}
+$('bri').value=S.bri;$('bv').textContent=S.bri+'%';
+$('bri').oninput=e=>{S.bri=+e.target.value;$('bv').textContent=S.bri+'%';cmd.bri(S.bri);save();};
+$('pick').value=hex(S.color);$('cur').style.background=hex(S.color);
+$('pick').oninput=e=>{stopShow();const h=e.target.value;setColor([1,3,5].map(i=>parseInt(h.substr(i,2),16)));};
+// wheel
+const W=$('wheel'),X=W.getContext('2d'),R=300;
+for(let a=0;a<360;a++){const g=X.createRadialGradient(R,R,0,R,R,R);g.addColorStop(0,'#fff');g.addColorStop(1,`hsl(${a},100%,50%)`);
+ X.fillStyle=g;X.beginPath();X.moveTo(R,R);X.arc(R,R,R,(a-1)*Math.PI/180,(a+1)*Math.PI/180);X.fill();}
+function hsv(h,s,v){const f=n=>{const k=(n+h/60)%6;return v*(1-s*Math.max(0,Math.min(k,4-k,1)))*255};return[f(5),f(3),f(1)];}
+function wheelPick(e){const r=W.getBoundingClientRect(),t=e.touches?e.touches[0]:e;const x=(t.clientX-r.left)/r.width*2-1,y=(t.clientY-r.top)/r.height*2-1;
+ const d=Math.min(1,Math.hypot(x,y));const h=(Math.atan2(y,x)*180/Math.PI+360)%360;stopShow();setColor(hsv(h,d,1));e.preventDefault();}
+let drag=false;W.addEventListener('pointerdown',e=>{drag=true;wheelPick(e)});W.addEventListener('pointermove',e=>drag&&wheelPick(e));addEventListener('pointerup',()=>drag=false);
+['#ff0000','#ff6a00','#ffc400','#00ff40','#00e5ff','#0040ff','#8a00ff','#ff00b4','#ffffff','#ffb070','#ff2a6d','#40ffb0'].forEach(c=>{
+ const b=document.createElement('button');b.style.background=c;b.onclick=()=>{stopShow();setColor([1,3,5].map(i=>parseInt(c.substr(i,2),16)))};$('sw').appendChild(b);});
+// shows
+const P=s=>s.split(' ').map(h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16)));
+const SHOWS=[
+ {id:'winter',n:'❄️ Winter',p:'twinkle',pal:P('#ffffff #9fd8ff #3a7bff #c8f0ff')},
+ {id:'spring',n:'🌷 Spring',p:'fade',pal:P('#ff9ad5 #b4ff8a #fff27a #b28aff')},
+ {id:'summer',n:'☀️ Summer',p:'fade',pal:P('#00e5ff #ffd000 #ff5a1f #00ff9c')},
+ {id:'fall',n:'🍂 Fall',p:'fade',pal:P('#ff5a00 #ffb000 #b32000 #ff7a1a')},
+ {id:'halloween',n:'🎃 Halloween',p:'sparkle',pal:P('#ff5a00 #8a00ff #20ff20 #ff3000')},
+ {id:'thanksgiving',n:'🦃 Thanksgiving',p:'pulse',pal:P('#ff7a00 #c04000 #ffb030 #8a3000')},
+ {id:'christmas',n:'🎄 Christmas',p:'step',pal:P('#ff0000 #00ff20 #ffffff #ffd000')},
+ {id:'newyear',n:'🎆 New Year\'s',p:'sparkle',pal:P('#ffd700 #ffffff #c0c0ff #ff40d0')},
+ {id:'valentine',n:'💘 Valentine\'s',p:'pulse',pal:P('#ff0040 #ff60a0 #ff0000 #ffb0d0')},
+ {id:'stpat',n:'☘️ St. Patrick\'s',p:'fade',pal:P('#00ff30 #00a020 #80ff40 #ffd000')},
+ {id:'easter',n:'🐣 Easter',p:'fade',pal:P('#ffb0e0 #b0e0ff #fff0a0 #c0ffb0 #d8b0ff')},
+ {id:'july4',n:'🇺🇸 July 4th',p:'step',pal:P('#ff0000 #ffffff #0030ff')},
+];
+function nowShow(d=new Date()){const m=d.getMonth()+1,day=d.getDate();
+ if(m===10&&day>=15)return'halloween';if(m===11&&day>=1)return'thanksgiving';if(m===12&&day<=27)return'christmas';
+ if((m===12&&day>27)||(m===1&&day<=2))return'newyear';if(m===2&&day>=7&&day<=14)return'valentine';if(m===3&&day>=10&&day<=17)return'stpat';
+ if(m===7&&day<=5)return'july4';if(m===4&&day<=20)return'easter';
+ return m<=2||m===12?'winter':m<=5?'spring':m<=8?'summer':'fall';}
+function nowSeason(d=new Date()){const m=d.getMonth()+1;return m<=2||m===12?'winter':m<=5?'spring':m<=8?'summer':'fall';}
+const NOW=[nowShow(),nowSeason()];
+SHOWS.forEach(s=>{const b=document.createElement('button');b.className='show'+(NOW.includes(s.id)?' now':'');b.id='s_'+s.id;
+ b.innerHTML=`<b>${s.n}</b><small>${s.p}</small><div class="pal">${s.pal.map(c=>`<i style="background:${hex(c)}"></i>`).join('')}</div>`;
+ b.onclick=()=>startShow(s);$('shows').appendChild(b);});
+// put current ones first
+NOW.slice().reverse().forEach(id=>{const e=$('s_'+id);e&&$('shows').prepend(e);});
+let raf=null,active=null,t0=0,last=0,lastStep=-1,twk=[];
+const spd=()=>+$('spd').value;$('sv').textContent=spd();$('spd').oninput=()=>$('sv').textContent=spd();
+const mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+function frame(ts){if(!active)return;raf=requestAnimationFrame(frame);
+ const s=active,pal=s.pal,k=spd()/5,t=(ts-t0)/1000*k;
+ if(ts-last<(s.p==='step'?20:60))return;last=ts;
+ let c;
+ if(s.p==='fade'){const x=t/2.5,i=Math.floor(x)%pal.length,f=x%1;c=mix(pal[i],pal[(i+1)%pal.length],f*f*(3-2*f));}
+ else if(s.p==='step'){const i=Math.floor(t/0.8);if(i===lastStep)return;lastStep=i;c=pal[i%pal.length];}
+ else if(s.p==='pulse'){const x=t/2,i=Math.floor(x)%pal.length,f=Math.sin((x%1)*Math.PI);c=pal[i].map(v=>v*(.08+.92*f));}
+ else{ // sparkle/twinkle: base color with random flashes
+  const base=s.p==='twinkle'?pal[2]:pal[0];const rate=s.p==='twinkle'?0.06:0.12;
+  if(Math.random()<rate*k){twk=[pal[1+Math.floor(Math.random()*(pal.length-1))],1];}
+  if(twk[1]>0){c=mix(base,twk[0],twk[1]);twk[1]-=0.18*k;}else c=mix(base,pal[Math.floor(t/4)%pal.length],0.25).map(v=>v*0.55);}
+ setColor(c,true);}
+function startShow(s){if(!ch){$('status').textContent='Connect first to run a show';}stopShow();active=s;t0=performance.now();lastStep=-1;
+ $('s_'+s.id).classList.add('active');if(!powerOn){powerOn=true;cmd.on();$('power').classList.add('on');}raf=requestAnimationFrame(frame);}
+function stopShow(){active=null;if(raf)cancelAnimationFrame(raf);document.querySelectorAll('.show.active').forEach(e=>e.classList.remove('active'));}
+$('stop').onclick=()=>{stopShow();setColor(S.color);};
+// built-in modes
+const MN=['Jump RGB','Jump 7-color','Crossfade R','Crossfade G','Crossfade B','Crossfade Y','Crossfade C','Crossfade P','Crossfade W','Crossfade RG','Crossfade RB','Crossfade GB','Crossfade RGB','Crossfade 7','Blink R','Blink G','Blink B','Blink Y','Blink C','Blink P','Blink W','Blink 7','Gradual RGB','Gradual 7','Strobe R','Strobe G','Strobe B','Strobe 7','Strobe W'];
+MN.forEach((n,i)=>{if(0x80+i>0x9C)return;const o=document.createElement('option');o.value=0x80+i;o.textContent=n;$('mode').appendChild(o);});
+$('modego').onclick=()=>{stopShow();cmd.mode(+$('mode').value);cmd.speed(+$('mspd').value);};
+$('mspd').oninput=e=>cmd.speed(+e.target.value);
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&active){/* rAF pauses in background */}});
+</script></body></html>
